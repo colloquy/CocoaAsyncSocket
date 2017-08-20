@@ -8159,6 +8159,14 @@ static void CFWriteStreamCallback (CFWriteStreamRef stream, CFStreamEventType ty
 
 - (BOOL)enableExtendBackgroundIdleMode
 {
+	LogTrace();
+	
+	if (!dispatch_get_specific(IsOnSocketQueueOrTargetQueueKey))
+	{
+		LogWarn(@"%@ - Method only available from within the context of a performBlock: invocation", THIS_METHOD);
+		return NO;
+	}
+	
 	if (&kCFStreamPropertySocketExtendedBackgroundIdleMode == NULL)
 	{
 		return NO;
