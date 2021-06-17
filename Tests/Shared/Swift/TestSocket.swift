@@ -17,6 +17,7 @@ class TestSocket: NSObject {
 	 *  Handles any expectation failures
 	 */
 	static var waiterDelegate: XCTWaiterDelegate? = nil
+    static let waiterTimeout: TimeInterval = 5.0
 
 	lazy var queue: DispatchQueue = { [unowned self] in
 		return DispatchQueue(label: "com.asyncSocket.\(self)")
@@ -28,11 +29,11 @@ class TestSocket: NSObject {
 
 	typealias Callback = Optional<() -> Void>
 
-	var onConnect: Callback
-	var onSecure: Callback
-	var onRead: Callback
-	var onWrite: Callback
-	var onDisconnect: Callback
+	var onConnect: Callback = nil
+	var onSecure: Callback = nil
+	var onRead: Callback = nil
+	var onWrite: Callback = nil
+	var onDisconnect: Callback = nil
 
 	// MARK: Counters
 
@@ -68,7 +69,7 @@ class TestSocket: NSObject {
 			self.socket.disconnect()
 		}
 
-		waiter.wait(for: [didDisconnect], timeout: 0.1)
+        waiter.wait(for: [didDisconnect], timeout: TestSocket.waiterTimeout)
 	}
 }
 
@@ -103,7 +104,7 @@ extension TestSocket {
 		}
 
 		self.socket.readData(toLength: length, withTimeout: 0.1, tag: 1)
-		waiter.wait(for: [didRead], timeout: 0.2)
+		waiter.wait(for: [didRead], timeout: TestSocket.waiterTimeout)
 	}
 
 	/**
@@ -123,7 +124,7 @@ extension TestSocket {
 		let fakeData = Data(repeating: 0, count: length)
 		self.socket.write(fakeData, withTimeout: 0.1, tag: 1)
 
-		waiter.wait(for: [didWrite], timeout: 0.2)
+		waiter.wait(for: [didWrite], timeout: TestSocket.waiterTimeout)
 
 		self.bytesWritten += Int(length)
 	}
